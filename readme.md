@@ -26,3 +26,13 @@ Instead of relying on scattered one-off setups, this repository provides:
 * Standardized configs for repeatable deployments
 * Version-controlled infrastructure
 * Easy customization for private or client-based needs
+
+
+### To do
+- [ ] Leverage Docker secrets
+- [ ] Self-sign cert generation
+- [ ] If existing cert is provided, update script to include existing cert files
+- [ ] Ensure Timezone is consistant across all services
+- [ ] Control on logging
+- [ ] Control on which services to keep running
+
