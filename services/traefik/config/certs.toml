@@ -1,0 +1,9 @@
+[[tls.certificates]]
+  certFile = "/certs/self_signed-ssl-bundle.crt"
+  keyFile = "/certs/self_signed.key"
+
+[tls.stores]
+  [tls.stores.default]
+    [tls.stores.default.defaultCertificate]
+      certFile = "/certs/self_signed-ssl-bundle.crt"
+      keyFile = "/certs/self_signed.key"

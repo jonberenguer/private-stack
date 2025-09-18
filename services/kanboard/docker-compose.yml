@@ -1,0 +1,67 @@
+services:
+  kanboard:
+    image: kanboard/kanboard:v1.2.47
+    #ports:
+    #  - "80:80"
+    #  - "443:443"
+    depends_on:
+      - kanboard-db
+    restart: always
+    extra_hosts:
+      - "gitea.facade.tech:172.30.0.3"
+    networks:
+      - kanboard_net
+      - traefik_default
+    volumes:
+      - kanboard_data:/var/www/app/data
+      - kanboard_plugins:/var/www/app/plugins
+      - kanboard_ssl:/etc/nginx/ssl
+    environment:
+      #DATABASE_URL: mysql://kanboard:kanboard-secret@db/kanboard
+      DB_DRIVER: ${DB_TYPE}
+      DB_USERNAME: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOSTNAME: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      PLUGIN_INSTALLER: true
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_default
+      - traefik.http.routers.kanboard-https.rule=Host(`${KANBOARD_HOST}`)
+      - traefik.http.routers.kanboard-https.entrypoints=https
+      - traefik.http.routers.kanboard-https.tls=true
+      - traefik.http.services.kanboard.loadbalancer.server.port=80
+    logging:
+      driver: none
+
+
+
+  kanboard-db:
+    image: postgres:16.10-alpine
+    networks:
+      - kanboard_net
+    restart: always
+    command: -c listen_addresses=0.0.0.0
+    volumes:
+      - kanboard_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    logging:
+      driver: none
+
+networks:
+  traefik_default:
+    external: true
+  kanboard_net:
+
+volumes:
+  kanboard_data:
+    external: true
+  kanboard_plugins:
+    external: true
+  kanboard_ssl:
+    external: true
+  kanboard_db:
+    external: true

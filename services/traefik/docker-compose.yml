@@ -1,0 +1,42 @@
+---
+
+services:
+  reverse-proxy:
+    image: traefik:v3.5.0
+    restart: always
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=false"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--entrypoints.http.http.redirections.entryPoint.to=https"
+      - "--entrypoints.http.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.http.http.redirections.entrypoint.permanent=true"
+      - "--providers.file.directory=/config"
+    networks:
+      traefik_default:
+        ipv4_address: 172.30.0.3
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/certs:ro
+      - ./config:/config:ro
+    labels:
+      - traefik.enable=false
+      #- traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_HOST}`)
+      #- traefik.http.routers.dashboard.entrypoints=https
+      #- traefik.http.routers.dashboard.tls=true
+      #- traefik.http.services.dashboard.loadbalancer.server.port=8080
+      #- traefik.http.routers.dashboard.middlewares=dashboard-ipwhitelist
+      #- traefik.http.middlewares.dashboard-ipwhitelist.ipwhitelist.sourcerange=192.168.0.0/24
+    logging:
+      driver: none
+
+networks:
+  traefik_default:
+    external: true

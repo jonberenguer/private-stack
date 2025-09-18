@@ -1,0 +1,30 @@
+---
+
+services:
+  gotify:
+    image: ghcr.io/gotify/server:2.6.3
+    restart: unless-stopped
+    networks:
+      - traefik_default
+    environment:
+      - GOTIFY_SERVER_TRUSTEDPROXIES=[127.0.0.1,172.30.0.0/16]
+    volumes:
+      - gotify_data:/app/data
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_default
+      - traefik.http.routers.gotify-https.rule=Host(`${GOTIFY_HOST}`)
+      - traefik.http.routers.gotify-https.entrypoints=https
+      - traefik.http.routers.gotify-https.tls=true
+      - traefik.http.routers.gotify-https.tls.certresolver=letsencrypt-resolver
+      - traefik.http.services.gotify.loadbalancer.server.port=80
+    #logging:
+    #  driver: none
+
+volumes:
+  gotify_data:
+    external: true
+
+networks:
+  traefik_default:
+    external: true

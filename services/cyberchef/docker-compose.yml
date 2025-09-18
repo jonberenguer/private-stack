@@ -1,0 +1,20 @@
+services:
+  cyberchef:
+    image: ghcr.io/gchq/cyberchef:10.19.4
+    restart: always
+    networks:
+      - traefik_default
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_default
+      - traefik.http.routers.cyberchef-https.rule=Host(`${CYBERCHEF_HOST}`)
+      - traefik.http.routers.cyberchef-https.entrypoints=https
+      - traefik.http.routers.cyberchef-https.tls=true
+      - traefik.http.routers.cyberchef-https.tls.certresolver=letsencrypt-resolver
+      - traefik.http.services.cyberchef.loadbalancer.server.port=80
+    logging:
+      driver: none
+
+networks:
+  traefik_default:
+    external: true

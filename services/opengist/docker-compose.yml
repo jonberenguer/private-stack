@@ -1,0 +1,42 @@
+---
+services:
+  opengist:
+    image: ghcr.io/thomiceli/opengist:1.10.0
+    container_name: opengist
+    restart: unless-stopped
+    #ports:
+    #  - "6157:6157" # HTTP port
+    #  - "2222:2222" # SSH port, can be removed if you don't use SSH
+    volumes:
+      - opengist:/opengist
+    environment:
+      OG_LOG_LEVEL: "error"
+      OG_SQLITE_JOURNAL_MODE: WAL
+      OG_EXTERNAL_URL: "https://${OPENGIST_HOST}/"
+      # other configuration options
+      OG_GITEA_CLIENT_KEY: "${OG_GITEA_CLIENT_KEY}"
+      OG_GITEA_SECRET: "${OG_GITEA_SECRET}"
+      OG_GITEA_URL: "${OG_GITEA_URL}"
+
+    extra_hosts:
+      - "gitea.facade.tech:172.30.0.3"
+    networks:
+      - traefik_default
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_default
+      - traefik.http.routers.opengist-https.rule=Host(`${OPENGIST_HOST}`)
+      - traefik.http.routers.opengist-https.entrypoints=https
+      - traefik.http.routers.opengist-https.tls=true
+      - traefik.http.routers.opengist-https.service=opengist
+      - traefik.http.services.opengist.loadbalancer.server.port=6157
+    logging:
+      driver: none
+
+networks:
+  traefik_default:
+    external: true
+
+volumes:
+  opengist:
+    external: true

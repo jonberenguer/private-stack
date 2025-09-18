@@ -1,0 +1,97 @@
+---
+
+services:
+  n8n:
+    image: n8nio/n8n:1.108.2
+    restart: always
+    depends_on:
+      - db
+    #ports:
+    #  - "127.0.0.1:5678:5678"
+    networks:
+      - n8n_net
+      - traefik_default
+    #extra_hosts:
+    #  - "hostnamehere:172.30.0.3"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_default
+      - traefik.http.routers.n8n.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`)
+      - traefik.http.routers.n8n.tls=true
+      - traefik.http.routers.n8n.entrypoints=https
+      - traefik.http.services.n8n.loadbalancer.server.port=5678
+      #- traefik.http.routers.n8n.tls.certresolver=mytlschallenge
+      - traefik.http.middlewares.n8n.headers.SSLRedirect=true
+      - traefik.http.middlewares.n8n.headers.STSSeconds=315360000
+      - traefik.http.middlewares.n8n.headers.browserXSSFilter=true
+      - traefik.http.middlewares.n8n.headers.contentTypeNosniff=true
+      - traefik.http.middlewares.n8n.headers.forceSTSHeader=true
+      - traefik.http.middlewares.n8n.headers.SSLHost=${DOMAIN_NAME}
+      - traefik.http.middlewares.n8n.headers.STSIncludeSubdomains=true
+      - traefik.http.middlewares.n8n.headers.STSPreload=true
+      - traefik.http.routers.n8n.middlewares=n8n@docker
+    environment:
+      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
+      - N8N_LISTEN_ADDRESS=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=db
+      - DB_POSTGRESDB_USER=${DB_USER}
+      - DB_POSTGRESDB_PASSWORD=${DB_PASSWORD}
+      - DB_POSTGRESDB_DATABASE=${DB_NAME}
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+      - N8N_TEMPLATES_ENABLED=false
+      - N8N_HIRING_BANNER_ENABLED=false
+      - EXTERNAL_FRONTEND_HOOKS_URLS=
+      - N8N_DIAGNOSTICS_CONFIG_FRONTEND=
+      - N8N_DIAGNOSTICS_CONFIG_BACKEND=
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - N8N_LOG_LEVEL=error
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=none
+      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=false
+      - EXECUTIONS_DATA_MAX_AGE=48
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_PRUNE_MAX_COUNT=50000
+      - N8N_DISABLED_MODULES=insights
+      - N8N_INSIGHTS_COMPACTION_BATCH_SIZE=200
+      - N8N_INSIGHTS_COMPACTION_DAILY_TO_WEEKLY_THRESHOLD_DAYS=60
+      - N8N_INSIGHTS_COMPACTION_HOURLY_TO_DAILY_THRESHOLD_DAYS=30
+      - N8N_INSIGHTS_FLUSH_BATCH_SIZE=250
+
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - n8n_files:/files
+    logging:
+      driver: none
+
+  db:
+    image: postgres:16.10-alpine
+    networks:
+      - n8n_net
+    restart: always
+    command: -c listen_addresses=0.0.0.0
+    volumes:
+      - n8n_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    logging:
+      driver: none
+
+networks:
+  n8n_net:
+  traefik_default:
+    external: true
+
+volumes:
+  n8n_db:
+    external: true
+  n8n_data:
+    external: true
+  n8n_files:
+    external: true
