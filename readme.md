@@ -30,7 +30,7 @@ Instead of relying on scattered one-off setups, this repository provides:
 
 ### To do
 - [ ] Leverage Docker secrets
-- [ ] Self-sign cert generation
+- [x] Self-sign cert generation
 - [ ] If existing cert is provided, update script to include existing cert files
 - [ ] Ensure Timezone is consistant across all services
 - [ ] Control on logging

@@ -3,13 +3,14 @@ set -e
 
 # arguments parsing
 if [[ "$#" -eq 0 ]]; then
-    echo "Usage: $0 [--init] [--start-traefik] [--start-all] [--stop-all] [--stop-traefik] [--delete-volumes]"
+    echo "Usage: $0 [--init] [--generate-cert] [--start-traefik] [--start-all] [--stop-all] [--stop-traefik] [--delete-volumes]" 
     exit 1
 fi
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --init) INIT_SERVICES=true ;;
+        --generate-cert) GENERATE_CERT=true ;;
         --start-traefik) START_TRAEFIK=true ;;
         --start-all) START_ALL=true ;;
         --stop-all) STOP_ALL=true ;;
@@ -59,6 +60,12 @@ init_services() {
     fi
 }
 
+generate_self_signed_cert() {
+    pushd services/traefik/certs
+    bash ./self-signed-certgen.sh
+    popd
+}
+
 start_traefik() {
     pushd services/traefik
     docker compose up -d
@@ -94,6 +101,9 @@ delete_volumes() {
 # Execute actions based on parsed arguments
 if [ "$INIT_SERVICES" = true ]; then
     init_services
+fi
+if [ "$GENERATE_CERT" = true ]; then
+    generate_self_signed_cert
 fi
 if [ "$START_TRAEFIK" = true ]; then
     start_traefik

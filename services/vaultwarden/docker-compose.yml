@@ -19,7 +19,8 @@ services:
       SIGNUPS_ALLOWED: "true"
       ENABLE_DB_WAL: "false"
       DATABASE_URL: "postgresql://${PG_USER}:${PG_PASSWORD}@pgsql/${PG_DB}"
-      ADMIN_TOKEN: $$argon2i$$v=19$$m=4096,t=3,p=1$$YWxwaGF6ZXJvMTIz$$TTK/T/JPftpTKb3F+R8wpsgy+UK0+ZHJPxgNylSzz+M
+      # Temporary password: UseCyberchefToCreateArgo2
+      ADMIN_TOKEN: $$argon2i$$v=19$$m=4096,t=3,p=1$$c29tZXNhbHQ$$Eq9NviMVO34U91CeCixnI9zybZJZXWS05EvJBpgNBuE
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik_default
