@@ -19,7 +19,7 @@ services:
       OG_GITEA_URL: "${OG_GITEA_URL}"
 
     extra_hosts:
-      - "gitea.facade.tech:172.30.0.3"
+      - "gitea.localhost.localdomain:172.30.0.3"
     networks:
       - traefik_default
     labels:

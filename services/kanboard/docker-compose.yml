@@ -8,7 +8,7 @@ services:
       - kanboard-db
     restart: always
     extra_hosts:
-      - "gitea.facade.tech:172.30.0.3"
+      - "gitea.localhost.localdomain:172.30.0.3"
     networks:
       - kanboard_net
       - traefik_default
